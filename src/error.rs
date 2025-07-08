@@ -16,10 +16,10 @@ use {
 #[repr(u64)] // discriminant size, used in emit_exception_kind in JIT
 pub enum EbpfError {
     /// ELF error
-    #[error("ELF error: {0}")]
+    #[error("ELF error")]
     ElfError(#[from] ElfError),
     /// Function was already registered
-    #[error("function #{0} was already registered")]
+    #[error("function was already registered")]
     FunctionAlreadyRegistered(usize),
     /// Exceeded max BPF to BPF call depth
     #[error("exceeded max BPF to BPF call depth")]
@@ -46,13 +46,13 @@ pub enum EbpfError {
     #[error("program has not been JIT-compiled")]
     JitNotCompiled,
     /// Memory region index or virtual address space is invalid
-    #[error("Invalid memory region at index {0}")]
+    #[error("Invalid memory region at index")]
     InvalidMemoryRegion(usize),
     /// Access violation (general)
-    #[error("Access violation in {3} section at address {1:#x} of size {2:?}")]
+    #[error("Access violation")]
     AccessViolation(AccessType, u64, u64, &'static str),
     /// Access violation (stack specific)
-    #[error("Access violation in stack frame {3} at address {1:#x} of size {2:?}")]
+    #[error("Access violation in stack frame")]
     StackAccessViolation(AccessType, u64, u64, i64),
     /// Invalid instruction
     #[error("invalid BPF instruction")]
@@ -61,13 +61,13 @@ pub enum EbpfError {
     #[error("unsupported BPF instruction")]
     UnsupportedInstruction,
     /// Compilation is too big to fit
-    #[error("Compilation exhausted text segment at BPF instruction {0}")]
+    #[error("Compilation exhausted text segment at BPF instruction")]
     ExhaustedTextSegment(usize),
     /// Libc function call returned an error
-    #[error("Libc calling {0} {1:?} returned error code {2}")]
+    #[error("Libc calling returned error code")]
     LibcInvocationFailed(&'static str, Vec<String>, i32),
     /// Verifier error
-    #[error("Verifier error: {0}")]
+    #[error("Verifier error")]
     VerifierError(#[from] VerifierError),
     /// Syscall error
     #[error("Syscall error: {0}")]
