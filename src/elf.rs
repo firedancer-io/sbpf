@@ -266,10 +266,25 @@ impl<C: ContextObject> Executable<C> {
 
     /// Get the .text section virtual address and bytes
     pub fn get_text_bytes(&self) -> (u64, &[u8]) {
-        (
-            self.text_section_vaddr,
-            &self.elf_bytes.as_slice()[self.text_section_range.clone()],
-        )
+        // PATCH: ensure that the text section is consistent with the ro_section
+        // when sections overlap: use data, not elf_bytes in the
+        // Section::Owned case.
+        // This can never happen in production, but this patch makes Agave's
+        // ELF loader implementation consistent with Firedancer's.
+        let text_len = self.text_section_range.len();
+        let text_offset = self.text_section_vaddr as usize - match &self.ro_section {
+            Section::Owned(offset, _) | Section::Borrowed(offset, _) => *offset,
+        };
+
+        let text_bytes = match &self.ro_section {
+            Section::Owned(_, data) => &data[text_offset..text_offset + text_len],
+            Section::Borrowed(_, byte_range) => {
+                let start = byte_range.start + text_offset;
+                &self.elf_bytes.as_slice()[start..start + text_len]
+            }
+        };
+
+        (self.text_section_vaddr, text_bytes)
     }
 
     /// Get the concatenated read-only sections (including the text section)
